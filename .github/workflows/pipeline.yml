@@ -1,0 +1,70 @@
+name: Deployment pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize]
+
+jobs:
+  backend_deployment_pipeline:
+    name: backend_deployment_pipeline
+    runs-on: ubuntu-20.04
+    steps:
+      uses: actions/checkout@v4
+      uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+    
+    - name: Install backend dependencies
+      run: |
+        cd server
+        npm install
+
+    - name: Lint backend
+      run: |
+        cd server
+        npm run lint
+    
+    - name: Test backend
+      run: |
+        cd server
+        npm run test
+    
+    - name: Build backend
+      run: |
+        cd server
+        npm run tsc
+
+  frontend_deployment_pipeline:
+    name: frontend_deployment_pipeline
+    needs: backend_deployment_pipeline
+    runs-on: ubuntu-20.04
+
+    steps:
+      uses: actions/checkout@v4
+      uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: install frontend dependencies
+        run: |
+          cd client
+          npm run install
+      
+      - name: Lint frontend
+        run: |
+          cd client
+          npm run lint
+      
+      - name: frontend E2E test
+
+
+      - name: Build frontend
+        run: |
+          cd client
+          npm run build
+      
+      

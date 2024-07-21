@@ -13,30 +13,30 @@ jobs:
     name: backend_deployment_pipeline
     runs-on: ubuntu-20.04
     steps:
-      uses: actions/checkout@v4
-      uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
     
-    - name: Install backend dependencies
-      run: |
-        cd server
-        npm install
+      - name: Install backend dependencies
+        run: |
+          cd server
+          npm install
 
-    - name: Lint backend
-      run: |
-        cd server
-        npm run lint
+      - name: Lint backend
+        run: |
+          cd server
+          npm run lint
     
-    - name: Test backend
-      run: |
-        cd server
-        npm run test
+      - name: Test backend
+        run: |
+          cd server
+          npm run test
     
-    - name: Build backend
-      run: |
-        cd server
-        npm run tsc
+      - name: Build backend
+        run: |
+          cd server
+          npm run tsc
 
   frontend_deployment_pipeline:
     name: frontend_deployment_pipeline
@@ -44,27 +44,29 @@ jobs:
     runs-on: ubuntu-20.04
 
     steps:
-      uses: actions/checkout@v4
-      uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: '20'
       
-      - name: install frontend dependencies
+      - name: Install frontend dependencies
         run: |
           cd client
-          npm run install
+          npm install
       
       - name: Lint frontend
         run: |
           cd client
           npm run lint
       
-      - name: frontend E2E test
-
-
       - name: Build frontend
         run: |
           cd client
           npm run build
       
-      
+      - name: E2E tests for frontend
+        run: |
+          cd e2e-tests
+          npm install
+          npx playwright install --with-deps
+          npm run test

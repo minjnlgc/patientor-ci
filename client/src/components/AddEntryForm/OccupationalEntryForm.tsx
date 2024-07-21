@@ -97,6 +97,11 @@ const OccupationalEntryForm = ({
 
     try {
       onSubmit(occupationalEntry);
+      setDescription("");
+      setDate("");
+      setSpecialist("");
+      setDiagnosisCode([]);
+      setEmployerName("");
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         if (e?.response?.data && typeof e?.response?.data === "string") {

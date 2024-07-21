@@ -89,6 +89,12 @@ const HospitalEntryForm = ({
 
     try {
       onSubmit(hospitalEntry);
+      setDescription("");
+      setDate("");
+      setSpecialist("");
+      setDiagnosisCode([]);
+      setDischargeDate("");
+      setDischargeCriteria("");
     } catch (e: unknown) {
       if (axios.isAxiosError(e)) {
         if (e?.response?.data && typeof e?.response?.data === "string") {

@@ -9,10 +9,15 @@ interface Props {
   toggleVisibility: () => void;
   formType: string;
   diagnoses: Diagnosis[];
-  onSubmit: (object: EntryWithoutId, id?: string) => void
+  onSubmit: (object: EntryWithoutId, id?: string) => void;
 }
 
-const AddEntryForm = ({ toggleVisibility, formType, diagnoses, onSubmit }: Props) => {
+const AddEntryForm = ({
+  toggleVisibility,
+  formType,
+  diagnoses,
+  onSubmit,
+}: Props) => {
   switch (formType) {
     case formTypes[0]:
       return (

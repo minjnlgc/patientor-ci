@@ -26,7 +26,7 @@ const getById = async (id: string) => {
   );
 
   return data;
-}
+};
 
 const createEntryByPatientId = async (id: string, object: EntryWithoutId) => {
   const { data } = await axios.post<Patient>(
@@ -35,7 +35,7 @@ const createEntryByPatientId = async (id: string, object: EntryWithoutId) => {
   );
 
   return data;
-}
+};
 
 export default {
   getAll, create, getById, createEntryByPatientId

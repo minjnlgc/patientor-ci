@@ -10,11 +10,14 @@ router.get("/", (_req, res) => {
 
 router.post("/", (req, res) => {
   try {
-    const newPatientEntry = toNewPatientEntry(req.body);
+    const newPatientEntry = toNewPatientEntry({
+      ...req.body,
+      entries: [],
+    });
     const newNonSensitivePatient = patientService.addPatient(newPatientEntry);
     res.json(newNonSensitivePatient);
   } catch (error: unknown) {
-    console.log("error");
+    console.error(error);
   }
 });
 

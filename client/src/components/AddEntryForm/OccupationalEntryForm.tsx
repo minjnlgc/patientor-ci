@@ -1,4 +1,5 @@
 import {
+  Alert,
   Card,
   CardContent,
   Typography,
@@ -11,9 +12,12 @@ import {
   ListItemText,
   Checkbox,
   SelectChangeEvent,
+  Grid
 } from "@mui/material";
 import { Diagnosis, EntryWithoutId } from "../../types";
 import { SyntheticEvent, useState } from "react";
+
+import axios from "axios";
 
 interface Props {
   toggleVisibility: () => void;
@@ -37,6 +41,15 @@ const OccupationalEntryForm = ({
   const [sickLeaveStartDate, setSickLeaveStartDate] = useState("");
   const [sickLeaveEndDate, setSickLeaveEndDate] = useState("");
 
+  const [error, setError] = useState<string>();
+
+  const showErrorMessage = (error: string) => {
+    setError(error);
+    setTimeout(() => {
+      setError("");
+    }, 2000);
+  };
+
   const handleDiagnosisCodeChange = (
     event: SelectChangeEvent<typeof diagnosisCode>
   ) => {
@@ -51,10 +64,20 @@ const OccupationalEntryForm = ({
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
+    if (
+      !description ||
+      !date ||
+      !specialist ||
+      !employerName ||
+      diagnosisCode.length === 0
+    ) {
+      showErrorMessage("Please fill in all fields before submitting.");
+      return;
+    }
 
     console.log("submit!");
 
-    let occupationalEntry: EntryWithoutId = {
+    const occupationalEntry: EntryWithoutId = {
       description: description,
       date: date,
       specialist: specialist,
@@ -72,7 +95,22 @@ const OccupationalEntryForm = ({
 
     console.log(occupationalEntry);
 
-    onSubmit(occupationalEntry);
+    try {
+      onSubmit(occupationalEntry);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e?.response?.data && typeof e?.response?.data === "string") {
+          const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          showErrorMessage(message);
+        } else {
+          showErrorMessage("Unrecognized axios error");
+        }
+      } else {
+        console.error("Unknown error", e);
+        showErrorMessage("Unknown error");
+      }
+    }
   };
 
   return (
@@ -81,6 +119,12 @@ const OccupationalEntryForm = ({
         <Typography gutterBottom sx={{ mb: 1 }}>
           <strong>New Occupational Health Care entry</strong>
         </Typography>
+
+        {error && (
+          <Alert severity="error" style={{ marginBottom: 10 }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
           <TextField
@@ -177,10 +221,30 @@ const OccupationalEntryForm = ({
             ))}
           </Select>
 
-          <Button variant="contained" color="error" onClick={toggleVisibility}>
-            Cancel
-          </Button>
-          <Button type="submit">Add</Button>
+          <Grid>
+            <Grid item>
+              <Button
+                color="secondary"
+                variant="contained"
+                style={{ float: "left", marginBottom: 15 }}
+                type="button"
+                onClick={toggleVisibility}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                style={{
+                  float: "right",
+                }}
+                type="submit"
+                variant="contained"
+              >
+                Add
+              </Button>
+            </Grid>
+          </Grid>
         </form>
       </CardContent>
     </Card>

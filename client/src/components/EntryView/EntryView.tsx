@@ -55,7 +55,7 @@ const EntryView = ({ entries, onSubmit }: Props) => {
   const handleFormChoice = (formType: string) => {
     console.log(formType);
     setClose(!close);
-    setformType(formType)
+    setformType(formType);
     toggleVisibility();
   };
 

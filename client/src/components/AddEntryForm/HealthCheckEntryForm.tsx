@@ -1,4 +1,5 @@
 import {
+  Alert,
   Card,
   CardContent,
   Typography,
@@ -11,9 +12,11 @@ import {
   ListItemText,
   Select,
   SelectChangeEvent,
+  Grid,
 } from "@mui/material";
 import { Diagnosis, EntryWithoutId, HealthCheckRating } from "../../types";
 import { SyntheticEvent, useState } from "react";
+import axios from "axios";
 
 interface Props {
   toggleVisibility: () => void;
@@ -36,6 +39,15 @@ const HealthCheckEntryForm = ({
     HealthCheckRating | string
   >("");
 
+  const [error, setError] = useState<string>();
+
+  const showErrorMessage = (error: string) => {
+    setError(error);
+    setTimeout(() => {
+      setError("");
+    }, 2000);
+  };
+
   const handleDiagnosisCodeChange = (
     event: SelectChangeEvent<typeof diagnosisCode>
   ) => {
@@ -50,6 +62,16 @@ const HealthCheckEntryForm = ({
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
+    if (
+      !description ||
+      !date ||
+      !specialist ||
+      !healthcheckrating ||
+      diagnosisCode.length === 0
+    ) {
+      showErrorMessage("Please fill in all fields before submitting.");
+      return;
+    }
 
     console.log("submit!");
     console.log("description:", description);
@@ -69,7 +91,22 @@ const HealthCheckEntryForm = ({
 
     console.log(healthCheckEntry);
 
-    onSubmit(healthCheckEntry);
+    try {
+      onSubmit(healthCheckEntry);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e?.response?.data && typeof e?.response?.data === "string") {
+          const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          showErrorMessage(message);
+        } else {
+          showErrorMessage("Unrecognized axios error");
+        }
+      } else {
+        console.error("Unknown error", e);
+        showErrorMessage("Unknown error");
+      }
+    }
   };
 
   return (
@@ -78,6 +115,12 @@ const HealthCheckEntryForm = ({
         <Typography gutterBottom>
           <strong>New HealthCheck entry</strong>
         </Typography>
+
+        {error && (
+          <Alert severity="error" style={{ marginBottom: 10 }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
           <TextField
@@ -164,10 +207,30 @@ const HealthCheckEntryForm = ({
             ))}
           </Select>
 
-          <Button variant="contained" color="error" onClick={toggleVisibility}>
-            Cancel
-          </Button>
-          <Button type="submit">Add</Button>
+          <Grid>
+            <Grid item>
+              <Button
+                color="secondary"
+                variant="contained"
+                style={{ float: "left", marginBottom: 15 }}
+                type="button"
+                onClick={toggleVisibility}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                style={{
+                  float: "right",
+                }}
+                type="submit"
+                variant="contained"
+              >
+                Add
+              </Button>
+            </Grid>
+          </Grid>
         </form>
       </CardContent>
     </Card>

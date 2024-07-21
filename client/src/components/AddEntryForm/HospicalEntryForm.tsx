@@ -1,4 +1,5 @@
 import {
+  Alert,
   SelectChangeEvent,
   Card,
   CardContent,
@@ -11,9 +12,11 @@ import {
   Checkbox,
   ListItemText,
   Button,
+  Grid,
 } from "@mui/material";
 import { SyntheticEvent, useState } from "react";
 import { Diagnosis, EntryWithoutId } from "../../types";
+import axios from "axios";
 
 interface Props {
   toggleVisibility: () => void;
@@ -34,6 +37,15 @@ const HospitalEntryForm = ({
   const [dischargeDate, setDischargeDate] = useState("");
   const [dischargeCriteria, setDischargeCriteria] = useState("");
 
+  const [error, setError] = useState<string>();
+
+  const showErrorMessage = (error: string) => {
+    setError(error);
+    setTimeout(() => {
+      setError("");
+    }, 2000);
+  };
+
   const handleDiagnosisCodeChange = (
     event: SelectChangeEvent<typeof diagnosisCode>
   ) => {
@@ -48,9 +60,20 @@ const HospitalEntryForm = ({
 
   const handleSubmit = (event: SyntheticEvent) => {
     event.preventDefault();
+    if (
+      !description ||
+      !date ||
+      !specialist ||
+      !dischargeDate ||
+      !dischargeCriteria ||
+      diagnosisCode.length === 0
+    ) {
+      showErrorMessage("Please fill in all fields before submitting.");
+      return;
+    }
 
     console.log("submit!");
-    const OccupationalEntry: EntryWithoutId = {
+    const hospitalEntry: EntryWithoutId = {
       description: description,
       date: date,
       specialist: specialist,
@@ -62,9 +85,24 @@ const HospitalEntryForm = ({
       type: "Hospital",
     };
 
-    console.log(OccupationalEntry);
+    console.log(hospitalEntry);
 
-    onSubmit(OccupationalEntry);
+    try {
+      onSubmit(hospitalEntry);
+    } catch (e: unknown) {
+      if (axios.isAxiosError(e)) {
+        if (e?.response?.data && typeof e?.response?.data === "string") {
+          const message = e.response.data.replace('Something went wrong. Error: ', '');
+          console.error(message);
+          showErrorMessage(message);
+        } else {
+          showErrorMessage("Unrecognized axios error");
+        }
+      } else {
+        console.error("Unknown error", e);
+        showErrorMessage("Unknown error");
+      }
+    }
   };
 
   return (
@@ -73,6 +111,12 @@ const HospitalEntryForm = ({
         <Typography gutterBottom sx={{ mb: 1 }}>
           <strong>New Hospital entry</strong>
         </Typography>
+
+        {error && (
+          <Alert severity="error" style={{ marginBottom: 10 }}>
+            {error}
+          </Alert>
+        )}
 
         <form onSubmit={handleSubmit}>
           <TextField
@@ -158,10 +202,30 @@ const HospitalEntryForm = ({
             ))}
           </Select>
 
-          <Button variant="contained" color="error" onClick={toggleVisibility}>
-            Cancel
-          </Button>
-          <Button type="submit">Add</Button>
+          <Grid>
+            <Grid item>
+              <Button
+                color="secondary"
+                variant="contained"
+                style={{ float: "left", marginBottom: 15 }}
+                type="button"
+                onClick={toggleVisibility}
+              >
+                Cancel
+              </Button>
+            </Grid>
+            <Grid item>
+              <Button
+                style={{
+                  float: "right",
+                }}
+                type="submit"
+                variant="contained"
+              >
+                Add
+              </Button>
+            </Grid>
+          </Grid>
         </form>
       </CardContent>
     </Card>

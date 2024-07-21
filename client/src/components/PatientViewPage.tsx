@@ -63,7 +63,7 @@ const PatientViewPage = ({ patientId }: Props) => {
         console.error("Unknown error", e);
       }
     }
-  }
+  };
 
   return (
     <div>

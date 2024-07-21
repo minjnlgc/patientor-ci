@@ -72,9 +72,6 @@ jobs:
       - name: E2E tests for frontend
         if: ${{ github.event_name == 'push' && ! contains(toJson(github.event.head_commit.message), '#skip-e2e') }}
         run: |
-          cd server
-          npm run dev
-          cd ..
           cd e2e-tests
           npm install
           npx playwright install --with-deps

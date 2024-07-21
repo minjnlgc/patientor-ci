@@ -1,6 +1,5 @@
 export const apiBaseUrl: string =
-  //"https://patientor-backend-henna.vercel.app/api";
-  "http://localhost:3001/api";
+  process.env.REACT_APP_API_BASE_URL || "http://localhost:3001/api";
 export const formTypes = [
   "HealthCheck",
   "Hospital",
